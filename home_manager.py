@@ -41,7 +41,8 @@ def value_refresh_to_influxdb_json(node, val):
         "fields": {
             'data': str(val.data_as_string),
             'units': str(val.units),
-            'type': 'none'
+            'type': 'none',
+            'type_val': 0
         }
     }]
 

@@ -6,6 +6,7 @@ from dateutil.parser import parse
 DATABASE = 'sterling_ranch'
 
 
+# Insert same data except set type to be shower and type_val to be 1, which represents a shower in our case.
 def result_set_to_influxdb_json(result_set):
     return [{
         "measurement": 'value_refresh',
@@ -22,7 +23,8 @@ def result_set_to_influxdb_json(result_set):
         "fields": {
             'data': result_set['data'],
             'units': result_set['units'],
-            'type': 'shower'
+            'type': 'shower',
+            'type_val': 1
         }
     }]
 
