@@ -29,6 +29,7 @@ It also contains a script that can set the 'type' of all datapoints between two 
 
 ### What configurations do I need to make?
 -Change the DEVICE_PATH variable in the Config class in main.py to the serial port your zwave stick is in.
+
 -Either create a influxdb database named 'sterling_ranch' or change the DATABASE variable in home_manager.py and shower_labeller.py to be whatever you name your database.
 
 ### What should the port name be?
