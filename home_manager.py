@@ -62,8 +62,6 @@ class HomeManager(object):
         options.lock()
         self.options = options
         self.network = ZWaveNetwork(options, log=None, autostart=False)
-        self.csvfile = open('output.csv', 'a')
-        self.writer = csv.writer(self.csvfile)
         self.client = InfluxDBClient(database=DATABASE)
 
     def start(self):
