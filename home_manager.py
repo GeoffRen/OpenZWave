@@ -74,7 +74,6 @@ class HomeManager(object):
     def stop(self):
         self.logger.info("Stopping network...")
         self.network.stop()
-        self.csvfile.close()
         self.logger.info("Stopped")
 
     def connect_signals(self):
