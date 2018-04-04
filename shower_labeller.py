@@ -21,7 +21,7 @@ def result_set_to_influxdb_json(result_set):
         },
         "time": result_set['time'],
         "fields": {
-            'data': result_set['data'],
+            'data': float(result_set['data']),
             'units': result_set['units'],
             'type': 'shower',
             'type_val': 1

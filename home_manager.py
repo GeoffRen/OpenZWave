@@ -39,7 +39,7 @@ def value_refresh_to_influxdb_json(node, val):
         },
         "time": time.asctime(time.localtime()),
         "fields": {
-            'data': str(val.data_as_string),
+            'data': float(val.data),
             'units': str(val.units),
             'type': 'none',
             'type_val': 0
@@ -73,6 +73,7 @@ class HomeManager(object):
 
     def stop(self):
         self.logger.info("Stopping network...")
+        self.network.nodes[3].values[72057594098484979].data = 3600
         self.network.stop()
         self.logger.info("Stopped")
 
@@ -88,7 +89,9 @@ class HomeManager(object):
             del network
         ozw_debug(self.logger, self.network)
         self.logger.info("Network is ready!")
+        self.network.nodes[3].values[72057594098484979].data = 15
         self.start_polling()
+
 
     @staticmethod
     def is_sensor(node):
