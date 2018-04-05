@@ -36,6 +36,8 @@ It also contains a script that can set the 'type' of all datapoints between two 
 
 -Either create a influxdb database named 'sterling_ranch' or change the DATABASE variable in home_manager.py ,shower_labeller.py, and write_to_main.py (PERSONAL_DATABASE instead of DATABASE) to be whatever you name your database.
 
+-Change GALLONS_PER_15_SECONDS to be your personal shower head rate in write_to_main.py.
+
 -If you want to write your filtered data to a influxdb instance on your personal machine, change CENTRAL_DATABASE to whatever you name your influxdb instance and CENTRAL_DATABASE_HOST to localhost.
 
 ### What should the port name be?
