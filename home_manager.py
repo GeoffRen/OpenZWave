@@ -1,4 +1,3 @@
-import csv
 import signal
 import time
 from openzwave.command import ZWaveNodeSensor
