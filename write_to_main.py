@@ -6,6 +6,7 @@ from threading import Timer
 
 PERSONAL_DATABASE = 'sterling_ranch'
 CENTRAL_DATABASE = 'main'
+CENTRAL_DATABASE_HOST = '18.217.102.91'
 QUERY_INTERVAL = 60  # In minutes.
 GALLONS_PER_15_SECONDS = 0.425
 
@@ -18,7 +19,7 @@ def main():
     """
     Timer(QUERY_INTERVAL*60, main).start()  # Run every hour.
     personal_client = InfluxDBClient(database=PERSONAL_DATABASE)
-    central_client = InfluxDBClient(database=CENTRAL_DATABASE)
+    central_client = InfluxDBClient(host=CENTRAL_DATABASE_HOST, database=CENTRAL_DATABASE)
     q = "select * from utilities_usage order by desc limit 1"
     last_date_in_central_database = peek(central_client.query(q).get_points())
     if not last_date_in_central_database:  # Run from the start of your database.
