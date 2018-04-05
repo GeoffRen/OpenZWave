@@ -1,7 +1,7 @@
 # personal_backend for each linux box in each Sterling Ranch home
 
 This program initializes the ZWave Network, logging Alarm Level, Burglar, Ultraviolet, Luminance, Relative Humidity, and Temperature readings to an influxdb instance every 15 seconds.
-It also contains a script that can set the 'type' of all datapoints between two times in the influxdb instance to 'shower'.
+It also contains a script that can set the 'type' of all datapoints between two times in the influxdb instance to 'shower' and a script that finds your total water usage per some amount of time and transmits that data to a central influxdb on an aws instance. Note that write_to_main.sh will run automatically once every hour once you start it.
 
 ## Set-up
 
@@ -22,6 +22,10 @@ It also contains a script that can set the 'type' of all datapoints between two 
 
 * ./shower_labeller.sh <beginning time eg 8:43:20pm> <ending time eg 8:55:34pm>
 
+## Running data transmitter script
+
+# ./write_to_main.sh
+
 ## Stopping
 * Just do ctrl+C once, it will stop itself.
 
@@ -30,7 +34,9 @@ It also contains a script that can set the 'type' of all datapoints between two 
 ### What configurations do I need to make?
 -Change the DEVICE_PATH variable in the Config class in main.py to the serial port your zwave stick is in.
 
--Either create a influxdb database named 'sterling_ranch' or change the DATABASE variable in home_manager.py and shower_labeller.py to be whatever you name your database.
+-Either create a influxdb database named 'sterling_ranch' or change the DATABASE variable in home_manager.py ,shower_labeller.py, and write_to_main.py (PERSONAL_DATABASE instead of DATABASE) to be whatever you name your database.
+
+-If you want to write your filtered data to a influxdb instance on your personal machine, change CENTRAL_DATABASE to whatever you name your influxdb instance and CENTRAL_DATABASE_HOST to localhost.
 
 ### What should the port name be?
 
