@@ -2,11 +2,13 @@ from influxdb import InfluxDBClient
 import datetime
 from dateutil.parser import parse
 from threading import Timer
+import requests
 
 
 PERSONAL_DATABASE = 'sterling_ranch'
-CENTRAL_DATABASE = 'main'
-CENTRAL_DATABASE_HOST = '18.217.102.91'
+CENTRAL_DATABASE = 'utilities_usage'
+# CENTRAL_DATABASE_HOST = '18.217.102.91'
+CENTRAL_DATABASE_HOST = 'localhost'
 QUERY_INTERVAL = 60  # In minutes.
 GALLONS_PER_15_SECONDS = 0.425
 
@@ -20,24 +22,24 @@ def main():
     Timer(QUERY_INTERVAL*60, main).start()  # Run every hour.
     personal_client = InfluxDBClient(database=PERSONAL_DATABASE)
     central_client = InfluxDBClient(host=CENTRAL_DATABASE_HOST, database=CENTRAL_DATABASE)
-    q = "select * from utilities_usage order by desc limit 1"
+    q = "select * from water order by desc limit 1"
     last_date_in_central_database = peek(central_client.query(q).get_points())
     if not last_date_in_central_database:  # Run from the start of your database.
-        initialize_central_database(personal_client, central_client)
+        initialize_central_database(personal_client)
     else:  # Run from the last time you transmitted data.
-        initialize_central_database(personal_client, central_client, last_date_in_central_database['time'])
+        initialize_central_database(personal_client, last_date_in_central_database['time'])
 
 
 # Repeatedly makes queries through personal_client and writes the data to central_client starting at from_datetime
 # until it exhausts all the data. The queries are between dates of size QUERY_INTERVAL.
-def initialize_central_database(personal_client, central_client, from_datetime=None):
+def initialize_central_database(personal_client, from_datetime=None):
     print("\n~~~INITIALIZING CENTRAL CLIENT FROM {}~~~\n".format(from_datetime if from_datetime else "BEGINNING"))
     q = "select * from value_refresh where label = 'Relative Humidity' limit 1"
     try:
         beginning_time = from_datetime if from_datetime else next(personal_client.query(q).get_points())['time']
     except:
         raise UserWarning("ERROR: NO VALUES IN PERSONAL DATABASE")
-    beginning_time = parse(beginning_time)
+    beginning_time = parse(beginning_time).replace(microsecond=0, second=0, minute=0)  # So time across users is synced.
     end_time = increment(beginning_time)
     # Since thie query is guaranteed to work, data is a dict containing all the identifying information of the sensor.
     identifying_data = peek(personal_client.query(q).get_points())
@@ -49,7 +51,12 @@ def initialize_central_database(personal_client, central_client, from_datetime=N
         # Since data is collected in intervals of 15 seconds, each point that has type_val = 1 represents 1
         # GALLONS_PER_15_SECONDS water used.
         water_usage = sum(data['type_val'] for data in res) * GALLONS_PER_15_SECONDS
-        central_client.write_points(result_set_to_influxdb_json(identifying_data, end_time, water_usage))
+        print(end_time.isoformat())
+        req = requests.post('http://{}:8080/utilities/water'.format(CENTRAL_DATABASE_HOST),
+                            json=result_set_to_influxdb_json(identifying_data, end_time, water_usage))
+        if req.status_code >= 400:
+            print("ERROR:", req.status_code, req.text)
+            return
         simple_logger(beginning_time, end_time, res, water_usage)
         beginning_time = end_time
         end_time = increment(beginning_time)
@@ -71,8 +78,8 @@ def hacky_datetime_now():
 
 # The format to write to CENTRAL_DATABASE in.
 def result_set_to_influxdb_json(data, time, water_usage):
-    return [{
-        "measurement": 'utilities_usage',
+    return {
+        # "measurement": 'utilities_usage',
         "tags": {
             'id_on_network': data['id_on_network'],
             'home_id': data['home_id'],
@@ -82,14 +89,14 @@ def result_set_to_influxdb_json(data, time, water_usage):
             'product_id': data['product_id'],
             'label': 'water'
         },
-        "time": time,  # The end insert time so we know where to start for the next insertion.
+        "timestamp": time.isoformat(),  # The end insert time so we know where to start for the next insertion.
         "fields": {
             'data': water_usage,
             'units': '',
             'type': 'shower',
             'type_val': 1
         }
-    }]
+    }
 
 
 # A simple logger that uses print statements.
