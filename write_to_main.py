@@ -7,8 +7,8 @@ import requests
 
 PERSONAL_DATABASE = 'sterling_ranch'
 CENTRAL_DATABASE = 'utilities_usage'
-# CENTRAL_DATABASE_HOST = '18.217.102.91'
-CENTRAL_DATABASE_HOST = 'localhost'
+CENTRAL_DATABASE_HOST = '18.218.111.49'
+# CENTRAL_DATABASE_HOST = 'localhost'
 QUERY_INTERVAL = 60  # In minutes.
 GALLONS_PER_15_SECONDS = 0.425
 
