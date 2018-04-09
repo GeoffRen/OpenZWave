@@ -19,7 +19,6 @@ def main():
     database. If you've never transmitted data before, it will start calculating and transmitting from the start of
     your database.
     """
-    Timer(QUERY_INTERVAL*60, main).start()  # Run every hour.
     personal_client = InfluxDBClient(database=PERSONAL_DATABASE)
     central_client = InfluxDBClient(host=CENTRAL_DATABASE_HOST, database=CENTRAL_DATABASE)
     q = "select * from water order by desc limit 1"
@@ -28,6 +27,10 @@ def main():
         initialize_central_database(personal_client)
     else:  # Run from the last time you transmitted data.
         initialize_central_database(personal_client, last_date_in_central_database['time'])
+    delay = datetime.datetime.now().replace(microsecond=0, second=0, minute=0) + datetime.timedelta(hours=1) \
+            - datetime.datetime.now() + datetime.timedelta(seconds=1)
+    Timer(delay.total_seconds(), main).start()  # Run a second past the next hour.
+    print("Running again at ", datetime.datetime.now() + delay) # Sanity check.
 
 
 # Repeatedly makes queries through personal_client and writes the data to central_client starting at from_datetime
