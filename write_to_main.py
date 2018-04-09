@@ -30,7 +30,7 @@ def main():
     delay = datetime.datetime.now().replace(microsecond=0, second=0, minute=0) + datetime.timedelta(hours=1) \
             - datetime.datetime.now() + datetime.timedelta(seconds=1)
     Timer(delay.total_seconds(), main).start()  # Run a second past the next hour.
-    print("Running again at ", datetime.datetime.now() + delay) # Sanity check.
+    print("Running again at ", datetime.datetime.now() + delay)  # Sanity check.
 
 
 # Repeatedly makes queries through personal_client and writes the data to central_client starting at from_datetime
