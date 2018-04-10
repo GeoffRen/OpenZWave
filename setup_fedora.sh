@@ -1,4 +1,4 @@
-sudo dnf install make gcc g++ python3-devel libudev-devel
+sudo dnf install make gcc python3-devel libudev-devel
 pip3 install virtualenv
 virtualenv --python=python3 venv
 source venv/bin/activate
