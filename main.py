@@ -9,7 +9,7 @@ from home_manager import HomeManager
 
 
 class Config:
-    DEVICE_PATH = "/dev/cu.usbmodem1411"
+    DEVICE_PATH = "/dev/ttyACM0"
     OZW_LOG_LEVEL = "None"
     LOGGING_NAME = 'openzwave'
     DEFAULT_LOGGING_FORMATTER = "%(asctime)s %(levelname)s %(name)-10s[%(process)d] -- %(message)s"
