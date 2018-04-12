@@ -1,4 +1,4 @@
-sudo apt-get install --force-yes -y make libudev-dev g++ libyaml-dev
+sudo apt-get install --force-yes -y make libudev-dev g++ libyaml-dev python3-pip
 pip3 install virtualenv
 virtualenv --python=python3 venv
 source venv/bin/activate
