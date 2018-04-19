@@ -108,3 +108,5 @@ OZW.log
 pyozw.sqlite
 zwscene.xml
 options.xml
+
+.DS_Store
