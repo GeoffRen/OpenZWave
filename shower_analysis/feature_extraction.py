@@ -1,6 +1,6 @@
 from pandas import read_csv
 
-QUERY_INTERVAL = 20000000000 # 20 instead of 20 to compensate for lag
+QUERY_INTERVAL = 20000000000 # 20 instead of 15 to compensate for lag
 
 
 def get_humidity_changes(data, time_steps):
