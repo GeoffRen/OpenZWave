@@ -102,3 +102,9 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# open_zwave tmp files
+OZW.log
+pyozw.sqlite
+zwscene.xml
+options.xml
