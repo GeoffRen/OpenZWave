@@ -91,7 +91,6 @@ class HomeManager(object):
         self.network.nodes[3].values[72057594098484979].data = 15
         self.start_polling()
 
-
     @staticmethod
     def is_sensor(node):
         return isinstance(node, ZWaveNodeSensor) and not len(node.get_sensors()) is 0
@@ -105,4 +104,4 @@ class HomeManager(object):
                     val = self.network.nodes[node_id].values[val_id]
                     if val.label in labels_to_be_polled:
                         self.logger.info("Received value refresh %s: %s", val.id_on_network, val)
-                        # self.client.write_points(value_refresh_to_influxdb_json(node, val))
+                        self.client.write_points(value_refresh_to_influxdb_json(node, val))

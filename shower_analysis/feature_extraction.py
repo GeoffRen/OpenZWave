@@ -16,7 +16,8 @@ def get_humidity_changes(data, time_steps):
     return humidity_changes
 
 
-data = read_csv('geoff_water_orig.csv')
+# data = read_csv('geoff_water_orig.csv')
+data = read_csv('geoff_water_test_orig.csv')
 
 # Use previous label as a feature.
 type_vals = data['type_val'].tolist()
@@ -34,6 +35,7 @@ data["humidity_change_6"] = get_humidity_changes(data, 6)
 
 # Saves data as a csv.
 print("~~~Saving~~~\n")
-data.to_csv('geoff_water.csv', index=False)
+# data.to_csv('geoff_water.csv', index=False)
+data.to_csv('geoff_water_test.csv', index=False)
 
 print("Done!")

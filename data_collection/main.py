@@ -5,7 +5,7 @@ import time
 import sys
 import openzwave
 from openzwave.network import ZWaveNetwork
-from home_manager import HomeManager
+from data_collection.home_manager import HomeManager
 
 
 class Config:
