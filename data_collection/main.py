@@ -9,6 +9,7 @@ from data_collection.home_manager import HomeManager
 
 
 class Config:
+    """Contains configuration information."""
     DEVICE_PATH = "/dev/cu.usbmodem1411"
     OZW_LOG_LEVEL = "None"
     LOGGING_NAME = 'openzwave'
@@ -16,9 +17,12 @@ class Config:
 
 
 def start():
+    """Connects to and starts the sensor and polling."""
+    # Set custom logger.
     logging.basicConfig(level=logging.INFO, format=Config.DEFAULT_LOGGING_FORMATTER)
     logger = logging.getLogger(Config.LOGGING_NAME + '/' + __file__)
     logger.info("Launching with ZWave Stick at %s", Config.DEVICE_PATH)
+
     try:
         manager = HomeManager(Config.DEVICE_PATH, Config.OZW_LOG_LEVEL, logger)
     except openzwave.object.ZWaveException as e:
@@ -29,7 +33,7 @@ def start():
     manager.start()
     cur_state = manager.network.state
     cur_state_str = manager.network.state_str
-    while True:
+    while True:  # Logs changes in manager state.
         time.sleep(0.25)
         if cur_state != manager.network.state:
             logger.info("%s ==> %s", cur_state_str, manager.network.state_str)

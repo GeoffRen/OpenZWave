@@ -1,16 +1,25 @@
 from pandas import read_csv
 
-CSV_NAME = 'geoff_on_off_testing'
-QUERY_INTERVAL = 20000000000 # 20 instead of 15 to compensate for lag
+CSV_NAME = 'geoff_water_test'  # Name of csv containing the raw data.
+QUERY_INTERVAL = 20000000000  # 20 seconds instead of 15 seconds to compensate for lag
 
 
 def get_humidity_changes(data, time_steps):
+    """Calculates humidity differences between all instances in data and the instance time_step back.
+    :param data: Contains all the instances.
+    :param time_steps: How far back to calculate the humidity difference.
+    :return: List containing all the humidity differences.
+    """
+    # Pad the beginning with time_step 0's since the difference between one of the first time_step number of humidity
+    # readings and the humidity reading time_step back does not make sense (will access a point in data at index < 0).
     humidity_changes = [0]*time_steps
     for i in range(time_steps, len(data)):
+        # If the humidity reading time_step times back was taken too long ago do not do the calculation.
         if data.iloc[i, 1] - data.iloc[i - time_steps, 1] > QUERY_INTERVAL*time_steps:
             print("Difference in time between {} and {} is {} minutes"
                   .format(i, i - time_steps, (data.iloc[i, 1] - data.iloc[i - time_steps, 1]) / 60000000000))
             humidity_changes.append(0)
+        # If the humidity reading time_step times back was taken at around the correct time, do the calculation.
         else:
             humidity_changes.append(data.iloc[i, 2] - data.iloc[i - time_steps, 2])
     print()
@@ -18,12 +27,6 @@ def get_humidity_changes(data, time_steps):
 
 
 data = read_csv('original_csvs/{}_orig.csv'.format(CSV_NAME))
-
-# Use previous label as a feature.
-type_vals = data['type_val'].tolist()
-type_vals.pop()
-type_vals.insert(0, 0)
-data["prev_type_val"] = type_vals
 
 # Use change in humidity levels from previous data points as features.
 data["humidity_change_1"] = get_humidity_changes(data, 1)
