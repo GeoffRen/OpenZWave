@@ -1,6 +1,6 @@
 from pandas import read_csv
 
-CSV_NAME = 'geoff_water_test'  # Name of csv containing the raw data.
+CSV_NAME = 'water_test'  # Name of csv containing the raw data.
 QUERY_INTERVAL = 20000000000  # 20 seconds instead of 15 seconds to compensate for lag
 
 

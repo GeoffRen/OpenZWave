@@ -1,6 +1,6 @@
 from pandas import read_csv
 from sklearn.neural_network import MLPClassifier
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import confusion_matrix, accuracy_score, recall_score
 from sklearn.model_selection import cross_val_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import ExtraTreesClassifier
@@ -12,9 +12,9 @@ from sklearn.naive_bayes import GaussianNB
 
 def rf():
     """Creates a pre-trained RandomForestClassifier.
-    :return: RandomForestClassifier pre-trained on humidity readings from geoff_water.csv.
+    :return: RandomForestClassifier pre-trained on humidity readings from water.csv.
     """
-    data = read_csv('geoff_water.csv')
+    data = read_csv('water.csv')
     X = data.loc[:, ['data', 'humidity_change_3', 'humidity_change_4',  'humidity_change_8', 'humidity_change_9']]\
         .astype('int').as_matrix()
     y = data.loc[:, 'type_val'].astype('int').as_matrix()
@@ -53,8 +53,9 @@ def general_ml(alg, X, y, scale=False, output=True, test_X=None, test_y=None):
         print("Classifier:", type(alg).__name__)
         print("Training split")
         print(confusion_matrix(y, predictions), "\n")
-        print(classification_report(y, predictions))
-        print("Accuracy: %0.5f (+/- %0.5f)\n" % (scores.mean(), scores.std() * 2))
+        print("Training Error:", 1 - accuracy_score(y, predictions))
+        print("Average unweighted recall:", recall_score(y, predictions, average='macro'))
+        print("Cross Validation error:", 1 - scores.mean(), "\n")
 
     if test_X is not None and test_y is not None:
         print("Testing split")
@@ -66,9 +67,12 @@ def general_ml(alg, X, y, scale=False, output=True, test_X=None, test_y=None):
                 test_predictions[i-3] = 1
                 test_predictions[i-4] = 1
         print(confusion_matrix(test_y, test_predictions), "\n")
-        print(classification_report(test_y, test_predictions), "\n")
+        print("Testing Error:", 1 - accuracy_score(test_y, test_predictions))
+        print("Average unweighted recall:", recall_score(test_y, test_predictions, average='macro'))
 
-    return alg if not scale else alg, scaler
+    if not scale:
+        return alg
+    return alg, scaler
 
 
 def run_test(alg, test_X, test_y, scaler=None):
@@ -90,28 +94,27 @@ def run_test(alg, test_X, test_y, scaler=None):
             test_predictions[i - 3] = 1
             test_predictions[i - 4] = 1
     print(confusion_matrix(test_y, test_predictions), "\n")
-    print(classification_report(test_y, test_predictions), "\n")
+    print("Training Error:", 1 - accuracy_score(test_X, test_predictions))
+    print("Average unweighted recall:", recall_score(test_y, test_predictions, average='macro'))
 
 
-# # Read in data.
-# data = read_csv('geoff_water.csv')
-# test_data = data.loc[57205:]
-# data = data.loc[:57205]
-# X = data.loc[:, ['data', 'humidity_change_1', 'humidity_change_2', 'humidity_change_3', 'humidity_change_4',  'humidity_change_8', 'humidity_change_9']].astype('int').as_matrix()
-# y = data.loc[:, 'type_val'].astype('int').as_matrix()
-
-# # test_data = read_csv('geoff_water_test.csv')
-# test_X = test_data.loc[:, ['data', 'humidity_change_1', 'humidity_change_2', 'humidity_change_3', 'humidity_change_4', 'humidity_change_8', 'humidity_change_9']].astype('int').as_matrix()
-# test_y = test_data.loc[:, 'type_val'].astype('int').as_matrix()
+# Read in data.
+data = read_csv('water.csv')
+test_data = data.loc[57205:]
+data = data.loc[:57205]
+X = data.loc[:, ['data', 'humidity_change_1', 'humidity_change_2', 'humidity_change_3', 'humidity_change_4',  'humidity_change_8', 'humidity_change_9']].astype('int').as_matrix()
+y = data.loc[:, 'type_val'].astype('int').as_matrix()
+test_X = test_data.loc[:, ['data', 'humidity_change_1', 'humidity_change_2', 'humidity_change_3', 'humidity_change_4', 'humidity_change_8', 'humidity_change_9']].astype('int').as_matrix()
+test_y = test_data.loc[:, 'type_val'].astype('int').as_matrix()
 
 
-# # Run normal tests.
-# gnb = general_ml(GaussianNB(), X, y, test_X=test_X, test_y=test_y)
-# nn = general_ml(MLPClassifier(hidden_layer_sizes=(30, 30, 30)), X, y, scale=True, test_X=test_X, test_y=test_y)
-# svm = general_ml(SVC(), X, y, scale=True, test_X=test_X, test_y=test_y)
-# dtc = general_ml(DecisionTreeClassifier(criterion='entropy'), X, y, test_X=test_X, test_y=test_y)
-# rfc = general_ml(RandomForestClassifier(n_estimators=100), X, y, test_X=test_X, test_y=test_y)
-# etc = general_ml(ExtraTreesClassifier(n_estimators=100), X, y, test_X=test_X, test_y=test_y)
+# Run normal tests.
+gnb = general_ml(GaussianNB(), X, y, test_X=test_X, test_y=test_y)
+nn = general_ml(MLPClassifier(hidden_layer_sizes=(30, 30, 30)), X, y, scale=True, test_X=test_X, test_y=test_y)
+svm = general_ml(SVC(), X, y, scale=True, test_X=test_X, test_y=test_y)
+dtc = general_ml(DecisionTreeClassifier(criterion='entropy'), X, y, test_X=test_X, test_y=test_y)
+rfc = general_ml(RandomForestClassifier(n_estimators=100), X, y, test_X=test_X, test_y=test_y)
+etc = general_ml(ExtraTreesClassifier(n_estimators=100), X, y, test_X=test_X, test_y=test_y)
 
 
 # # Compare how important each feature is.
@@ -121,23 +124,23 @@ def run_test(alg, test_X, test_y, scaler=None):
 
 
 # # Run the tests of each model considered against each testing csv.
-# hotc = read_csv('geoff_hot_closed_testing.csv')
+# hotc = read_csv('hot_closed_testing.csv')
 # hotc_X = hotc.loc[:, ['data', 'humidity_change_1', 'humidity_change_2', 'humidity_change_3', 'humidity_change_4',  'humidity_change_8', 'humidity_change_9']].astype('int').as_matrix()
 # hotc_y = hotc.loc[:, 'type_val'].astype('int').as_matrix()
 #
-# hoto = read_csv('geoff_hot_open_testing.csv')
+# hoto = read_csv('hot_open_testing.csv')
 # hoto_X = hoto.loc[:, ['data', 'humidity_change_1', 'humidity_change_2', 'humidity_change_3', 'humidity_change_4',  'humidity_change_8', 'humidity_change_9']].astype('int').as_matrix()
 # hoto_y = hoto.loc[:, 'type_val'].astype('int').as_matrix()
 #
-# coldc = read_csv('geoff_cold_closed_testing.csv')
+# coldc = read_csv('cold_closed_testing.csv')
 # coldc_X = coldc.loc[:, ['data', 'humidity_change_1', 'humidity_change_2', 'humidity_change_3', 'humidity_change_4',  'humidity_change_8', 'humidity_change_9']].astype('int').as_matrix()
 # coldc_y = coldc.loc[:, 'type_val'].astype('int').as_matrix()
 #
-# coldo = read_csv('geoff_cold_open_testing.csv')
+# coldo = read_csv('cold_open_testing.csv')
 # coldo_X = coldo.loc[:, ['data', 'humidity_change_1', 'humidity_change_2', 'humidity_change_3', 'humidity_change_4',  'humidity_change_8', 'humidity_change_9']].astype('int').as_matrix()
 # coldo_y = coldo.loc[:, 'type_val'].astype('int').as_matrix()
 #
-# of = read_csv('geoff_on_off_testing.csv')
+# of = read_csv('on_off_testing.csv')
 # of_X = of.loc[:, ['data', 'humidity_change_1', 'humidity_change_2', 'humidity_change_3', 'humidity_change_4',  'humidity_change_8', 'humidity_change_9']].astype('int').as_matrix()
 # of_y = of.loc[:, 'type_val'].astype('int').as_matrix()
 #

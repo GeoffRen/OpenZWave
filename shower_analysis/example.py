@@ -6,7 +6,7 @@ import numpy as np
 
 
 DATABASE = 'example'  # The InfluxDB database name to write the example data too. Allows live grafana representation.
-TEST_DATA = 'geoff_water_test.csv'  # The csv to get the example data from.
+TEST_DATA = 'water_test.csv'  # The csv to get the example data from.
 TIME_INTERVAL = 1  # The time interval in seconds to write the predictions to DATABASE.
 
 
